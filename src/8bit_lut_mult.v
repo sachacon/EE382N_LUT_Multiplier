@@ -24,12 +24,20 @@ module 8bit_lut_mult #(parameter A_const = 2) (input [7:0]X, output [15:0]C);
   
   // sign modification 
   wire [11:0] sign_mod_o;
-  sign_modification u_sign_mod (.x(direct_lut_o), .incr(X[3]), .y(sign_mod_o));
-  
-  
+  // sign_modification u_sign_mod (.x(direct_lut_o), .incr(X[3]), .y(sign_mod_o));
+  wire [10:0] inv_bits;
+ 
+  assign inv_bits = ~x;
+  assign sign_mod_o = temp;
+  reg temp; 
+  always@(*)
+    begin
+    temp = inv_bits + 1;
+    end 
+      
   // increment circuit 
   wire [4:0] incr_o
-  increment_circuit u_incr2 (.A(X[7:4]), .incr(X[3]), .S(incr_o[3:0]), .Co(incr_o[4]));
+  // increment_circuit u_incr2 (.A(X[7:4]), .incr(X[3]), .S(incr_o[3:0]), .Co(incr_o[4]));
   
   // 9 word OMS LUT
   // same thing as Table IV 
