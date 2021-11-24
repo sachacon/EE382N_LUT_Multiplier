@@ -7,18 +7,18 @@ module 8bit_lut_mult #(parameter A_const = 2) (input [7:0]X, output [15:0]C);
   
   
   // 8 word direct LUT
-  reg [15:0] direct_lut_o;
+  reg [10:0] direct_lut_o;
   always@(*)
     begin
       case(input_coding_o)
-        3'b000: direct_lut_o = 16'd0 * A_const;
-        3'b001: direct_lut_o = 16'd1 * A_const;
-        3'b010: direct_lut_o = 16'd2 * A_const; 
-        3'b011: direct_lut_o = 16'd3 * A_const;
-        3'b100: direct_lut_o = 16'd4 * A_const;
-        3'b101: direct_lut_o = 16'd5 * A_const; 
-        3'b110: direct_lut_o = 16'd6 * A_const;
-        3'b111: direct_lut_o = 16'd7 * A_const;
+        3'b000: direct_lut_o = 11'd0 * A_const;
+        3'b001: direct_lut_o = 11'd1 * A_const;
+        3'b010: direct_lut_o = 11'd2 * A_const; 
+        3'b011: direct_lut_o = 11'd3 * A_const;
+        3'b100: direct_lut_o = 11'd4 * A_const;
+        3'b101: direct_lut_o = 11'd5 * A_const; 
+        3'b110: direct_lut_o = 11'd6 * A_const;
+        3'b111: direct_lut_o = 11'd7 * A_const;
       endcase 
     end 
   
@@ -31,22 +31,22 @@ module 8bit_lut_mult #(parameter A_const = 2) (input [7:0]X, output [15:0]C);
   wire [4:0] incr_o
   increment_circuit u_incr2 (.A(X[7:4]), .incr(X[3]), .S(incr_o[3:0]), .Co(incr_o[4]));
   
-  // 9 word oms LUT
+  // 9 word OMS LUT
   // same thing as Table IV 
-  reg [15:0] oms_lut_o;
+  reg [11:0] oms_lut_o;
   always@(*)
     begin
       case(incr_o)
-        5'b00000: oms_lut_o = 16'd0;
-        5'b00001: oms_lut_o = 16'd1;
-        5'b00011: oms_lut_o = 16'd2;
-        5'b00001: oms_lut_o = 16'd3;
-        5'b00001: oms_lut_o = 16'd4;
-        5'b00001: oms_lut_o = 16'd5;
-        5'b00001: oms_lut_o = 16'd6;
-        5'b00001: oms_lut_o = 16'd7;
-        5'b10000: oms_lut_o = 16'd8;
-        default: oms_lut_o = 16'b0
+        0: oms_lut_o = 12'd1  * A_const;
+        1: oms_lut_o = 12'd3  * A_const;
+        2: oms_lut_o = 12'd5  * A_const;
+        3: oms_lut_o = 12'd7  * A_const;
+        4: oms_lut_o = 12'd9  * A_const;
+        5: oms_lut_o = 12'd11 * A_const;
+        6: oms_lut_o = 12'd13 * A_const;
+        7: oms_lut_o = 12'd15 * A_const;
+        8: oms_lut_o = 12'd2  * A_const;
+        default: oms_lut_o = 12'b0
       endcase
     end 
         
@@ -69,18 +69,25 @@ module 8bit_lut_mult #(parameter A_const = 2) (input [7:0]X, output [15:0]C);
   reg [15:0] temp_shift_out;
   wire [15:0] shift_out assign = temp_shift_out;
   always@(*)
+    begin
     case({s1,s0})
       2'b00: temp_shift_out = shift_in;
       2'b01: temp_shift_out = shift_in << 1;
       2'b10: temp_shift_out = shift_in << 2;
       2'b11: temp_shift_out = shift_in << 3;
     endcase 
+    end
  
   
-  // add partial products to get final product 
-   C = {4'b0,sign_mod_o} + {temp_shift_out[11:0],4'b0} ; // a[15:0], b[15:0]
-   // C = {8'b0,sign_mod_o} + {temp_shift_out[15:0],4'b0} ; // a[15:0], b[15:0
-   // 16bit_adder u_adder (.A(), .B(), .S(C);
+  // add partial products to get final product
+        reg [15:0] C_temp; 
+   assign C = C_temp;
+   always@(*)
+      begin       
+      C_temp = {4'b0,sign_mod_o} + {temp_shift_out[11:0],4'b0} ; // a[15:0], b[15:0]
+      end 
+  // C = {8'b0,sign_mod_o} + {temp_shift_out[15:0],4'b0} ; // a[15:0], b[15:0
+  // 16bit_adder u_adder (.A(), .B(), .S(C);
   
 endmodule 
  
