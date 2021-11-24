@@ -6,7 +6,7 @@ module 8bit_lut_mult #(parameter A_const = 2) (input [7:0]X, output [15:0]C);
   
   
   // 8 word direct LUT
-  reg [10:0] direct_lut_o;
+  reg [15:0] direct_lut_o;
   always@(*)
     begin
       case(input_coding_o)
@@ -15,7 +15,7 @@ module 8bit_lut_mult #(parameter A_const = 2) (input [7:0]X, output [15:0]C);
         3'b010: direct_lut_o = 11'd2 * A_const; 
         3'b011: direct_lut_o = 11'd3 * A_const;
         3'b100: direct_lut_o = 11'd4 * A_const;
-        3'b101: direct_lut_o = 11'd5 = A_const; 
+        3'b101: direct_lut_o = 11'd5 * A_const; 
         3'b110: direct_lut_o = 11'd6 * A_const;
         3'b111: direct_lut_o = 11'd7 * A_const;
       endcase 
@@ -31,7 +31,7 @@ module 8bit_lut_mult #(parameter A_const = 2) (input [7:0]X, output [15:0]C);
   increment_circuit u_incr2 (.A(X[7:4]), .incr(X[3]), .S(incr_o[3:0]), .Co(incr_o[4]));
   
   // 9 word oms LUT
-  reg [11:0] oms_lut_o;
+  reg [15:0] oms_lut_o;
   always@(*)
     begin
       case(incr_o)
