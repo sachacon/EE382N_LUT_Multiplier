@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module unsigned_mult_tb
   #(parameter BIT_WIDTH=8);
   
