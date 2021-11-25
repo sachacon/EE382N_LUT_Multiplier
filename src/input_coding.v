@@ -1,4 +1,24 @@
-module input_coding(input [3:0]x, output [3:0]y);
+
+module input_coding(
+    input [3:0] X,
+    output [3:0] Y
+    );
+    
+    wire Ci,ri;
+    wire [3:0] X_1comp;
+    assign Ci = X[3];
+    assign X_1comp[3] = X[3] ^ Ci;
+    assign X_1comp[2] = X[2] ^ Ci; 
+    assign X_1comp[1] = X[1] ^ Ci; 
+    assign X_1comp[0] = X[0] ^ Ci; 
+    assign ri = Ci ^ 1'b0; //Ci-1 = 0 so ri = Ci
+    assign Y = X_1comp + ri;
+    
+endmodule
+
+/*
+
+module input_coding(input [3:0] x, output [3:0] y);
   
   // Still need to verify that the logic is correct 
   
@@ -34,3 +54,4 @@ module input_coding(input [3:0]x, output [3:0]y);
   xor u32 (y[3], x[3], n31); 
   
 endmodule 
+*/
