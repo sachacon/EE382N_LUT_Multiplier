@@ -35,7 +35,7 @@ module lut_mult_8bit #(parameter A_const = 2) (input [7:0]X, output [15:0]C);
   wire [10:0] inv_bits;
   reg [11:0] sign_mod_temp;
   assign inv_bits = ~direct_lut_o;
-  assign sign_mod_o = sign_mod_temp; 
+  assign sign_mod_o = (X[3] == 1) ? sign_mod_temp : direct_lut_o; 
   always@(*)
     begin
     sign_mod_temp = inv_bits + 1;
@@ -86,8 +86,8 @@ module lut_mult_8bit #(parameter A_const = 2) (input [7:0]X, output [15:0]C);
   or s10  (n10, incr_o[0], incr_o[1]);
   not s11 (s1, n10);
   
-  reg [15:0] temp_shift_out;
-  wire [15:0] shift_out;
+  reg [11:0] temp_shift_out;
+  wire [11:0] shift_out;
   assign shift_out = temp_shift_out;
   always@(*)
     begin
@@ -105,11 +105,9 @@ module lut_mult_8bit #(parameter A_const = 2) (input [7:0]X, output [15:0]C);
   assign C = C_temp;
   always@(*)
     begin       
-      C_temp = {4'b0,sign_mod_o} + {temp_shift_out[11:0],4'b0} ; // a[15:0], b[15:0]
+      C_temp = {4'b0,sign_mod_o} + {shift_out[11:0],4'b0} ; // a[15:0], b[15:0]
     end 
   // C = {8'b0,sign_mod_o} + {temp_shift_out[15:0],4'b0} ; // a[15:0], b[15:0
-  // 16bit_adder u_adder (.A(), .B(), .S(C);
-  
   
 endmodule 
  
