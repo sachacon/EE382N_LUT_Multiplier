@@ -1,4 +1,4 @@
-module 8bit_lut_mult #(parameter A_const = 2) (input [7:0]X, output [15:0]C); 
+module lut_mult_8bit #(parameter A_const = 2) (input [7:0]X, output [15:0]C); 
   
   // input coding unit 
   // verify input coding unit block
