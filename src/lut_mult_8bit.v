@@ -1,24 +1,19 @@
-module lut_mult_8bit #(parameter A_const = 2) (input [7:0]X, output [15:0]C); 
+module lut_mult_8bit #(parameter A_const = 2) (input [7:0] X, output [15:0] C); 
   
   // input coding unit 
   // verify input coding unit block
-  wire [2:0] input_coding_o;
-  // input_coding u_input_coding (.x(X[3:0]), .y(input_coding_o))
+  wire [3:0] input_coding_o;
+  input_coding u_input_coding(.x(X[3:0]), .y(input_coding_o))
   // Xi' = (Xi XOR Ci) + (Ci-1 XOR Ci)
   // Ci-1 = 0, (Ci-1 XOR Ci) = (0 XOR Ci) = Ci 
   // Ci = X[3]
-  assign input_coding_o[0] = (X[0] ^ X[3]) | X[3]; 
-  assign input_coding_o[1] = (X[1] ^ X[3]) | X[3]; 
-  assign input_coding_o[2] = (X[2] ^ X[3]) | X[3]; 
-  assign input_coding_o[3] = (X[3] ^ X[3]) | X[3]; 
-  // input_coding_o[3:0] = (X[3:0] ^ X[3]) | X[3]; 
  
   
   // 8 Word Direct LUT
   reg [10:0] direct_lut_o;
   always@(*)
     begin
-      case(input_coding_o)
+      case(input_coding_o[2:0])
         3'b000: direct_lut_o = 11'd0 * A_const;
         3'b001: direct_lut_o = 11'd1 * A_const;
         3'b010: direct_lut_o = 11'd2 * A_const; 
