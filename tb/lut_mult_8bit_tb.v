@@ -18,14 +18,14 @@ module unsigned_mult_tb
     #5 
     if(C == X*A_const)soln = 1;
     else soln = 0; 
-    $display("time=%0t, A=%0d, X=%0d. C=%0d, %d", $time, A_const, X, C, soln);
+    $display("time=%0t, A=%0d, X=%0d. C=%0d, Correct=%0d", $time, A_const, X, C, soln);
     for(i = 0; i < (1 << BIT_WIDTH); i=i+1)
       begin
         X = X + 8'd1;
         #5
         if(C == X*A_const)soln = 1;
         else soln = 0; 
-        $display("time=%0t, A=%0d, X=%0d. C=%0d, %d", $time, A_const, X, C, soln);
+        $display("time=%0t, A=%0d, X=%0d. C=%0d, Correct=%0d", $time, A_const, X, C, soln);
       end
     $finish;
   end
