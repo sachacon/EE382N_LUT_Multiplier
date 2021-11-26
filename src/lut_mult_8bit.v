@@ -45,20 +45,38 @@ module lut_mult_8bit #(parameter A_const = 2) (input [7:0] X, output [15:0] C);
       incr_temp = X[7:4] + X[3];
     end   
   
-  // 9 Word OMS LUT, same as Table IV 
+ // 9 Word OMS LUT, same as Table IV 
   reg [11:0] oms_lut_o;
   always@(*)
     begin
       case(incr_o)
-        0: oms_lut_o = 12'd1  * A_const;
-        1: oms_lut_o = 12'd3  * A_const;
-        2: oms_lut_o = 12'd5  * A_const;
-        3: oms_lut_o = 12'd7  * A_const;
-        4: oms_lut_o = 12'd9  * A_const;
-        5: oms_lut_o = 12'd11 * A_const;
-        6: oms_lut_o = 12'd13 * A_const;
-        7: oms_lut_o = 12'd15 * A_const;
-        8: oms_lut_o = 12'd2  * A_const;
+        // reset case 
+        5'b00000: oms_lut_o = 12'd0;
+        // address 0000
+        5'b00001: oms_lut_o = 12'd1  * A_const;
+        5'b00010: oms_lut_o = 12'd1  * A_const;
+        5'b00100: oms_lut_o = 12'd1  * A_const;
+        5'b01000: oms_lut_o = 12'd1  * A_const;
+        // address 0001
+        5'b00011: oms_lut_o = 12'd3 * A_const;
+        5'b00110: oms_lut_o = 12'd3 * A_const;
+        5'b01100: oms_lut_o = 12'd3 * A_const;
+        // address 0010
+        5'b00101: oms_lut_o = 12'd5  * A_const;
+        5'b01010: oms_lut_o = 12'd5  * A_const;
+        // address 0011
+        5'b00111: oms_lut_o = 12'd7  * A_const;
+        5'b01110: oms_lut_o = 12'd7  * A_const;
+        // address 0100
+        5'b01001: oms_lut_o = 12'd9  * A_const;
+        // address 0101
+        5'b01011: oms_lut_o = 12'd11  * A_const;
+        // address 0110
+        5'b01101: oms_lut_o = 12'd13 * A_const;
+        // address 0111
+        5'b01111: oms_lut_o = 12'd15 * A_const;
+        // adress 1000
+        5'b10000: oms_lut_o = 12'd2 * A_const;
         default: oms_lut_o = 12'b0;
       endcase
     end 
