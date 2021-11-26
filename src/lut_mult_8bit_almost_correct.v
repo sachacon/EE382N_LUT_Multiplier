@@ -40,16 +40,17 @@ module lut_mult_8bit #(parameter A_const = 2) (input [7:0]X, output [15:0]C);
   
   // Sign Modification 
   wire [11:0] sign_mod_o;
-  wire [10:0] inv_bits;
-  reg [11:0] sign_mod_temp;
-  assign inv_bits = ~direct_lut_o;
-  assign sign_mod_o = (X[3] == 1) ? sign_mod_temp : direct_lut_o; 
+  assign sign_mod_o = (X[3] == 1) ? (~direct_lut_o + 1'b1) : direct_lut_o; 
+  //wire [10:0] inv_bits;
+  //reg [11:0] sign_mod_temp;
+  //assign inv_bits = ~direct_lut_o;
+  //assign sign_mod_o = (X[3] == 1) ? sign_mod_temp : direct_lut_o; 
   //assign sign_mod_o = {1'b0,direct_lut_o}; 
   //assign sign_mod_temp = ~(direct_lut_o) + 1'b1;
-  always@(*)
-    begin
-    sign_mod_temp = inv_bits + 1'b1;
-    end 
+  //always@(*)
+  //  begin
+  //  sign_mod_temp = inv_bits + 1'b1;
+  //  end 
       
   // Increment Circuit 
   wire [4:0] incr_o;
