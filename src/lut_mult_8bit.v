@@ -38,12 +38,13 @@ module lut_mult_8bit #(parameter A_const = 2) (input [7:0] X, output [15:0] C);
       
   // Increment Circuit 
   wire [4:0] incr_o;
-  reg [4:0] incr_temp;
-  assign incr_o = incr_temp;
-  always@(*)
-    begin
-      incr_temp = X[7:4] + X[3];
-    end   
+  assign incr_o = X[7:4] + X[3];
+  //reg [4:0] incr_temp;
+  //assign incr_o = incr_temp;
+  //always@(*)
+  //  begin
+  //    incr_temp = X[7:4] + X[3];
+  //  end   
   
  // 9 Word OMS LUT, same as Table IV 
   reg [11:0] oms_lut_o;
