@@ -1,27 +1,41 @@
-module lut_mult_8bit #(parameter A_const = 2) (input [7:0] X, output [15:0] C); 
+module lut_mult_8bit #(parameter A_const = 2) (input [7:0]X, output [15:0]C); 
   
   // input coding unit 
   // verify input coding unit block
   wire [3:0] input_coding_o;
-  input_coding u_input_coding(.x(X[3:0]), .y(input_coding_o))
+  // input_coding u_input_coding (.x(X[3:0]), .y(input_coding_o))
   // Xi' = (Xi XOR Ci) + (Ci-1 XOR Ci)
   // Ci-1 = 0, (Ci-1 XOR Ci) = (0 XOR Ci) = Ci 
   // Ci = X[3]
- 
+  //assign input_coding_o[0] = (X[0] ^ X[3]) | X[3]; 
+  //assign input_coding_o[1] = (X[1] ^ X[3]) | X[3]; 
+  //assign input_coding_o[2] = (X[2] ^ X[3]) | X[3]; 
+  //assign input_coding_o[3] = (X[3] ^ X[3]) | X[3]; 
+  // input_coding_o[3:0] = (X[3:0] ^ X[3]) | X[3]; 
+   wire Ci, ri;
+   wire [3:0] input_coding_temp;
+   assign Ci = X[3];
+   assign input_coding_temp[3] = X[3] ^ Ci;
+   assign input_coding_temp[2] = X[2] ^ Ci; 
+   assign input_coding_temp[1] = X[1] ^ Ci; 
+   assign input_coding_temp[0] = X[0] ^ Ci; 
+   assign ri = Ci ^ 1'b0; //Ci-1 = 0 so ri = Ci
+   assign input_coding_o = input_coding_temp + ri;
   
   // 8 Word Direct LUT
-  reg [10:0] direct_lut_o;
+  reg [10:0] direct_lut_temp;
+  wire [10:0] direct_lut_o;
   always@(*)
     begin
       case(input_coding_o[2:0])
-        3'b000: direct_lut_o = 11'd0 * A_const;
-        3'b001: direct_lut_o = 11'd1 * A_const;
-        3'b010: direct_lut_o = 11'd2 * A_const; 
-        3'b011: direct_lut_o = 11'd3 * A_const;
-        3'b100: direct_lut_o = 11'd4 * A_const;
-        3'b101: direct_lut_o = 11'd5 * A_const; 
-        3'b110: direct_lut_o = 11'd6 * A_const;
-        3'b111: direct_lut_o = 11'd7 * A_const;
+        3'b000: direct_lut_temp = 11'd0 * A_const;
+        3'b001: direct_lut_temp = 11'd1 * A_const;
+        3'b010: direct_lut_temp = 11'd2 * A_const; 
+        3'b011: direct_lut_temp = 11'd3 * A_const;
+        3'b100: direct_lut_temp = 11'd4 * A_const;
+        3'b101: direct_lut_temp = 11'd5 * A_const; 
+        3'b110: direct_lut_temp = 11'd6 * A_const;
+        3'b111: direct_lut_temp = 11'd7 * A_const;
       endcase 
     end 
   
@@ -29,24 +43,26 @@ module lut_mult_8bit #(parameter A_const = 2) (input [7:0] X, output [15:0] C);
   wire [11:0] sign_mod_o;
   wire [10:0] inv_bits;
   reg [11:0] sign_mod_temp;
-  assign inv_bits = ~direct_lut_o;
-  assign sign_mod_o = (X[3] == 1) ? sign_mod_temp : direct_lut_o; 
-  always@(*)
-    begin
-    sign_mod_temp = inv_bits + 1;
-    end 
+  //assign inv_bits = ~direct_lut_o;
+  //assign sign_mod_temp = ~(direct_lut_o) + 1'b1;
+  assign direct_lut_o = (X[3:0] == 4'b1000) ? (11'd16) : direct_lut_temp;
+  assign sign_mod_o = (X[3] == 1) ? (~direct_lut_o + 1'b1) : direct_lut_o; 
+  //assign sign_mod_o = {1'b0,direct_lut_o}; 
+//  always@(*)
+//    begin
+//    sign_mod_temp = inv_bits + 1'b1;
+//    end 
       
   // Increment Circuit 
   wire [4:0] incr_o;
-  assign incr_o = X[7:4] + X[3];
   //reg [4:0] incr_temp;
-  //assign incr_o = incr_temp;
+  assign incr_o = X[7:4] + X[3];
   //always@(*)
   //  begin
   //    incr_temp = X[7:4] + X[3];
   //  end   
   
- // 9 Word OMS LUT, same as Table IV 
+  // 9 Word OMS LUT, same as Table IV 
   reg [11:0] oms_lut_o;
   always@(*)
     begin
@@ -78,7 +94,7 @@ module lut_mult_8bit #(parameter A_const = 2) (input [7:0] X, output [15:0] C);
         5'b01111: oms_lut_o = 12'd15 * A_const;
         // adress 1000
         5'b10000: oms_lut_o = 12'd2 * A_const;
-        default: oms_lut_o = 12'b0;
+        default: oms_lut_o = 12'd0;
       endcase
     end 
         
@@ -117,11 +133,15 @@ module lut_mult_8bit #(parameter A_const = 2) (input [7:0] X, output [15:0] C);
    // add partial products to get final product
   reg [15:0] C_temp; 
   assign C = C_temp;
+  wire [15:0] A_temp;
+  wire [15:0] B_temp; 
+  assign A_temp = {shift_out[11:0],4'b0};
+  assign B_temp = {sign_mod_o[11],sign_mod_o[11],sign_mod_o[11],sign_mod_o[11],sign_mod_o};
   always@(*)
-    begin       
-      C_temp = {4'b0,sign_mod_o} + {shift_out[11:0],4'b0} ; // a[15:0], b[15:0]
+    begin
+      C_temp = (A_temp[15] == 1) ? (A_temp - B_temp) : (A_temp + B_temp) ; // a[15:0], b[15:0]
     end 
   // C = {8'b0,sign_mod_o} + {temp_shift_out[15:0],4'b0} ; // a[15:0], b[15:0
+  // 16bit_adder u_adder (.A(), .B(), .S(C);
   
 endmodule 
- 
